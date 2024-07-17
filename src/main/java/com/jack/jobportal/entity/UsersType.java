@@ -14,7 +14,7 @@ import java.util.List;
 @Table(name = "users_type")
 public class UsersType {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_type_id", nullable = false)
     private int userTypeId;
     private String userTypeName;
