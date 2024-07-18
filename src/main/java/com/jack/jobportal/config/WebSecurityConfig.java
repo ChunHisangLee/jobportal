@@ -14,6 +14,12 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class WebSecurityConfig {
     private final CustomUserDetailsService customUserDetailsService;
+
+    @Autowired
+    public WebSecurityConfig(CustomUserDetailsService customUserDetailsService) {
+        this.customUserDetailsService = customUserDetailsService;
+    }
+
     private final String[] publicUrl = {
             "/",
             "/global-search/**",
@@ -34,10 +40,6 @@ public class WebSecurityConfig {
             "/error"
     };
 
-    @Autowired
-    public WebSecurityConfig(CustomUserDetailsService customUserDetailsService) {
-        this.customUserDetailsService = customUserDetailsService;
-    }
 
     @Bean
     protected SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
