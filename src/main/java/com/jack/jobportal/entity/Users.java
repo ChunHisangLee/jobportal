@@ -2,13 +2,12 @@ package com.jack.jobportal.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -18,30 +17,24 @@ import java.time.Instant;
 public class Users {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id", nullable = false)
     private int userId;
 
-    @Size(max = 255)
-    @Column(name = "email")
+    @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(name = "is_active")
     private boolean isActive;
 
-    @Size(max = 255)
     @NotEmpty
-    @Column(name = "password")
     private String password;
 
-    @Column(name = "registration_date")
-    @DateTimeFormat(pattern = "dd-MM-yyyy")
-    private Instant registrationDate;
+    @DateTimeFormat(pattern = "dd-MM-yyyy HH:mm:ss")
+    private LocalDateTime registrationDate;
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_type_id")
     private UsersType userTypeId;
 
-    public Users(int userId, String email, boolean isActive, String password, Instant registrationDate, UsersType userTypeId) {
+    public Users(int userId, String email, boolean isActive, String password, LocalDateTime registrationDate, UsersType userTypeId) {
         this.userId = userId;
         this.email = email;
         this.isActive = isActive;
