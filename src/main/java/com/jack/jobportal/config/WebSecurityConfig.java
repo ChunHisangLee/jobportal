@@ -44,14 +44,22 @@ public class WebSecurityConfig {
             "/error"
     };
 
-
     @Bean
     protected SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers(publicUrl).permitAll();
                     auth.anyRequest().authenticated();
-                });
+                })
+                .formLogin(form -> form.loginPage("/login")
+                        .permitAll()
+                        .successHandler(customAuthenticationSuccessHandler))
+                .logout(logout -> {
+                    logout.logoutUrl("/logout");
+                    logout.logoutSuccessUrl("/");
+                })
+                .cors(Customizer.withDefaults())
+                .csrf(AbstractHttpConfigurer::disable);
 
         http.formLogin(form -> form.loginPage("/login").permitAll()
                         .successHandler(customAuthenticationSuccessHandler))
