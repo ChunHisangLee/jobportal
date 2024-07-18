@@ -17,11 +17,12 @@ import java.util.List;
 public class UsersType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_type_id", nullable = false)
     private int userTypeId;
 
     private String userTypeName;
 
-    @OneToMany(targetEntity = Users.class, mappedBy = "userTypeId", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "userTypeId", cascade = CascadeType.ALL)
     private List<Users> users;
 
     @Override
