@@ -13,13 +13,12 @@ import lombok.*;
 @Table(name = "recruiter_profile")
 public class RecruiterProfile {
     @Id
-    @Column(name = "user_account_id", nullable = false)
-    private Integer id;
+    private Integer userAccountId;
 
     @MapsId
     @OneToOne
     @JoinColumn(name = "user_account_id", nullable = false)
-    private Users users;
+    private Users userId;
 
     @Size(max = 255)
     @Column(name = "city")
@@ -50,6 +49,6 @@ public class RecruiterProfile {
     private String state;
 
     public RecruiterProfile(Users users) {
-        this.users = users;
+        this.userId = users;
     }
 }
