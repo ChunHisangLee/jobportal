@@ -38,6 +38,7 @@ public class UsersService {
     public Users addNew(Users users) {
         users.setActive(true);
         users.setRegistrationDate(LocalDateTime.ofInstant(Instant.now(), ZoneId.systemDefault()));
+        users.setPassword(passwordEncoder.encode(users.getPassword()));
         Users savedUser = usersRepository.save(users);
         int userTypeId = users.getUserTypeId().getUserTypeId();
 
