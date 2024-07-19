@@ -3,9 +3,9 @@ package com.jack.jobportal.entity;
 public interface IRecruiterJobs {
     Long getTotalCandidates();
 
-    int getJob_post_id();
+    int getJobPostId();
 
-    String getJob_title();
+    String getJobTitle();
 
     int getLocationId();
 

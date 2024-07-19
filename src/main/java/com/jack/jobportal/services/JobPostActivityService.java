@@ -22,6 +22,15 @@ public class JobPostActivityService {
     }
 
     public List<RecruiterJobsDto> getRecruiterJobs(int recruiter) {
+        List<IRecruiterJobs> recruiterJobsList = jobPostActivityRepository.getRecruiterJobs(recruiter);
+        return recruiterJobsList.stream()
+                .map(this::convertToRecruiterJobsDto)
+                .collect(Collectors.toList());
+    }
 
+    private RecruiterJobsDto convertToRecruiterJobsDto(IRecruiterJobs rec) {
+        JobLocation location = new JobLocation(rec.getLocationId(), rec.getCity(), rec.getState(), rec.getCountry());
+        JobCompany company = new JobCompany(rec.getCompanyId(), rec.getName(), "");
+        return new RecruiterJobsDto(rec.getTotalCandidates(), rec.getJobPostId(), rec.getJobTitle(), location, company);
     }
 }
