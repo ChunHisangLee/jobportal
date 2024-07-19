@@ -16,7 +16,7 @@ public class WebSecurityConfig {
     private final CustomUserDetailsService customUserDetailsService;
 
     @Autowired
-    public WebSecurityConfig(CustomUserDetailsService customUserDetailsService) {
+    public WebSecurityConfig(CustomUserDetailsService customUserDetailsService, CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler) {
         this.customUserDetailsService = customUserDetailsService;
     }
 
