@@ -33,4 +33,9 @@ public class JobPostActivityService {
         JobCompany company = new JobCompany(rec.getCompanyId(), rec.getName(), "");
         return new RecruiterJobsDto(rec.getTotalCandidates(), rec.getJobPostId(), rec.getJobTitle(), location, company);
     }
+
+    public JobPostActivity getOne(int id) {
+        return jobPostActivityRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Job not found"));
+    }
 }
