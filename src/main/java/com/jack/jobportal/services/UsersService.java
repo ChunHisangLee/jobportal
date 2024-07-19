@@ -68,11 +68,23 @@ public class UsersService {
         int UserId = users.getUserId();
 
         if (authentication.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("Recruiter"))) {
-            RecruiterProfile recruiterProfile = recruiterProfileRepository.findById(UserId).orElse(new RecruiterProfile());
-            return recruiterProfile;
+            return recruiterProfileRepository.findById(UserId)
+                    .orElse(new RecruiterProfile());
         } else {
-            JobSeekerProfile jobSeekerProfile = jobSeekerProfileRepository.findById(UserId).orElse(new JobSeekerProfile());
-            return jobSeekerProfile;
+            return jobSeekerProfileRepository.findById(UserId)
+                    .orElse(new JobSeekerProfile());
         }
+    }
+
+    public Users getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated() || authentication instanceof AnonymousAuthenticationToken) {
+            return null;
+        }
+
+        String username = authentication.getName();
+        return usersRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Could not found user"));
     }
 }

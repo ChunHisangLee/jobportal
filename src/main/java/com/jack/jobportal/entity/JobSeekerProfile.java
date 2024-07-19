@@ -20,7 +20,7 @@ public class JobSeekerProfile {
 
     @MapsId
     @OneToOne
-    @JoinColumn(name = "user_account_id", nullable = false)
+    @JoinColumn(name = "user_account_id")
     private Users userId;
 
     private String city;
