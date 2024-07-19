@@ -1,6 +1,8 @@
 package com.jack.jobportal.controller;
 
 import com.jack.jobportal.entity.JobPostActivity;
+import com.jack.jobportal.entity.RecruiterJobsDto;
+import com.jack.jobportal.entity.RecruiterProfile;
 import com.jack.jobportal.entity.Users;
 import com.jack.jobportal.services.JobPostActivityService;
 import com.jack.jobportal.services.UsersService;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.List;
 
 @Controller
 public class JobPostActivityController {
@@ -33,13 +36,28 @@ public class JobPostActivityController {
 
     @GetMapping("/dashboard/")
     public String searchJobs(Model model) {
+        Object currentUserProfile = usersService.getCurrentUserProfile();
+        model.addAttribute("user", currentUserProfile);
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (!(authentication instanceof AnonymousAuthenticationToken)) {
-            model.addAttribute("username", authentication.getName());
+        if (authentication instanceof AnonymousAuthenticationToken) {
+            return "redirect:/";
         }
 
-        model.addAttribute("user", usersService.getCurrentUserProfile());
+        String currentUsername = authentication.getName();
+        model.addAttribute("username", currentUsername);
+
+        if (authentication.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("Recruiter"))) {
+            if (currentUserProfile instanceof RecruiterProfile) {
+                RecruiterProfile recruiterProfile = (RecruiterProfile) currentUserProfile;
+                List<RecruiterJobsDto> recruiterJobs = jobPostActivityService.getRecruiterJobs(recruiterProfile.getUserAccountId());
+                model.addAttribute("jobPost", recruiterJobs);
+            } else {
+                logger.warn("Current user profile is not of type RecruiterProfile");
+            }
+        }
+
         return "dashboard";
     }
 
