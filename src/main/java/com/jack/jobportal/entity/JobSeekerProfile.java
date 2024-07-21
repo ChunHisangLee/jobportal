@@ -16,7 +16,7 @@ import java.util.List;
 @Table(name = "job_seeker_profile")
 public class JobSeekerProfile {
     @Id
-    private int userAccountId;
+    private Integer userAccountId;
 
     @MapsId
     @OneToOne
@@ -47,6 +47,15 @@ public class JobSeekerProfile {
 
     public JobSeekerProfile(Users userId) {
         this.userId = userId;
+    }
+
+    @Transient
+    public String getPhotosImagePath() {
+        if (profilePhoto == null || userAccountId == null) {
+            return null;
+        }
+
+        return "/photos/candidate/" + userAccountId + "/" + profilePhoto;
     }
 
     @Override
