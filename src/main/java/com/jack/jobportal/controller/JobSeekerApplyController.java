@@ -69,17 +69,19 @@ public class JobSeekerApplyController {
 
     private void applyForJobJfAuthenticated(int id, String username) {
         Optional<Users> user = usersService.findByEmail(username);
-        Optional<JobSeekerProfile> seekerProfile = jobSeekerProfileService.getOne(user.get().getUserId());
-        JobPostActivity jobPostActivity = jobPostActivityService.getOne(id);
+        if (user.isPresent()) {
+            JobPostActivity jobPostActivity = jobPostActivityService.getOne(id);
+            Optional<JobSeekerProfile> seekerProfile = jobSeekerProfileService.getOne(user.get().getUserId());
 
-        if (seekerProfile.isPresent() && jobPostActivity != null) {
-            JobSeekerApply jobSeekerApply = new JobSeekerApply();
-            jobSeekerApply.setUserId(seekerProfile.get());
-            jobSeekerApply.setJob(jobPostActivity);
-            jobSeekerApply.setApplyDate(LocalDateTime.ofInstant(Instant.now(), ZoneId.systemDefault()));
-            jobSeekerApplyService.addNew(jobSeekerApply);
-        } else {
-            throw new RuntimeException("User not found or job post not found");
+            if (seekerProfile.isPresent() && jobPostActivity != null) {
+                JobSeekerApply jobSeekerApply = new JobSeekerApply();
+                jobSeekerApply.setUserId(seekerProfile.get());
+                jobSeekerApply.setJob(jobPostActivity);
+                jobSeekerApply.setApplyDate(LocalDateTime.ofInstant(Instant.now(), ZoneId.systemDefault()));
+                jobSeekerApplyService.addNew(jobSeekerApply);
+            } else {
+                throw new RuntimeException("User not found or job post not found");
+            }
         }
     }
 
@@ -95,8 +97,10 @@ public class JobSeekerApplyController {
         JobSeekerProfile jobSeekerProfile = jobSeekerProfileService.getCurrentSeekerProfile();
 
         if (jobSeekerProfile != null) {
-            boolean alreadyApplied = jobSeekerApplyList.stream().anyMatch(apply -> Objects.equals(apply.getUserId().getUserAccountId(), jobSeekerProfile.getUserAccountId()));
-            boolean alreadySaved = jobSeekerSaveList.stream().anyMatch(save -> Objects.equals(save.getUserId().getUserAccountId(), jobSeekerProfile.getUserAccountId()));
+            boolean alreadyApplied = jobSeekerApplyList.stream()
+                    .anyMatch(apply -> Objects.equals(apply.getUserId().getUserAccountId(), jobSeekerProfile.getUserAccountId()));
+            boolean alreadySaved = jobSeekerSaveList.stream()
+                    .anyMatch(save -> Objects.equals(save.getUserId().getUserAccountId(), jobSeekerProfile.getUserAccountId()));
             model.addAttribute("alreadyApplied", alreadyApplied);
             model.addAttribute("alreadySaved", alreadySaved);
         }

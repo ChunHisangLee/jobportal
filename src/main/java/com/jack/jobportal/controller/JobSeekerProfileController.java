@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -76,14 +75,12 @@ public class JobSeekerProfileController {
         jobSeekerProfile.setUserId(user);
         jobSeekerProfile.setUserAccountId(user.getUserId());
 
-        for (Skills skill : jobSeekerProfile.getSkills()) {
-            skill.setJobSeekerProfile(jobSeekerProfile);
-        }
+        jobSeekerProfile.getSkills()
+                .forEach(skill -> skill.setJobSeekerProfile(jobSeekerProfile));
         handleFileUpload(jobSeekerProfile, image, pdf);
         jobSeekerProfileService.addNew(jobSeekerProfile);
-        List<Skills> skillsList = new ArrayList<>(jobSeekerProfile.getSkills());
         model.addAttribute("profile", jobSeekerProfile);
-        model.addAttribute("skills", skillsList);
+        model.addAttribute("skills", jobSeekerProfile.getSkills());
         return "redirect:/dashboard/";
     }
 
@@ -102,24 +99,23 @@ public class JobSeekerProfileController {
 
     @GetMapping("/downloadResume")
     public ResponseEntity<?> downloadResume(@RequestParam("fileName") String fileName, @RequestParam("userID") String userId) {
-        FileDownloadUtil downloadUtil = new FileDownloadUtil();
-        Resource resource;
-
         try {
-            resource = downloadUtil.getFileAsResource("photos/candidate/" + userId, fileName);
+            Resource resource = new FileDownloadUtil().getFileAsResource("photos/candidate/" + userId, fileName);
 
             if (resource == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("File not found");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("File not found");
             }
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error retrieving file");
-        }
 
-        String headerValue = "attachment; filename=\"" + resource.getFilename() + "\"";
-        return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .header(HttpHeaders.CONTENT_DISPOSITION, headerValue)
-                .body(resource);
+            String headerValue = "attachment; filename=\"" + resource.getFilename() + "\"";
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, headerValue)
+                    .body(resource);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error retrieving file");
+        }
     }
 
     private void handleFileUpload(JobSeekerProfile jobSeekerProfile, MultipartFile image, MultipartFile pdf) {
