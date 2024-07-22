@@ -30,11 +30,11 @@ import java.util.Objects;
 
 @Controller
 public class JobPostActivityController {
+    private static final Logger logger = LoggerFactory.getLogger(JobPostActivityController.class);
     private final UsersService usersService;
     private final JobPostActivityService jobPostActivityService;
     private final JobSeekerApplyService jobSeekerApplyService;
     private final JobSeekerSaveService jobSeekerSaveService;
-    private static final Logger logger = LoggerFactory.getLogger(JobPostActivityController.class);
 
     @Autowired
     public JobPostActivityController(UsersService usersService, JobPostActivityService jobPostActivityService, JobSeekerApplyService jobSeekerApplyService, JobSeekerSaveService jobSeekerSaveService) {

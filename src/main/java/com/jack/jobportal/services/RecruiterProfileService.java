@@ -45,6 +45,7 @@ public class RecruiterProfileService {
 
         return null;
     }
+
     private boolean isAuthenticated(Authentication authentication) {
         return authentication != null && authentication.isAuthenticated() && !(authentication instanceof AnonymousAuthenticationToken);
     }

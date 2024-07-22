@@ -27,9 +27,9 @@ import java.util.Optional;
 @Controller
 @RequestMapping("/recruiter-profile")
 public class RecruiterProfileController {
+    private static final Logger logger = LoggerFactory.getLogger(RecruiterProfileController.class);
     private final UsersRepository usersRepository;
     private final RecruiterProfileService recruiterProfileService;
-    private static final Logger logger = LoggerFactory.getLogger(RecruiterProfileController.class);
 
     @Autowired
     public RecruiterProfileController(UsersRepository usersRepository, RecruiterProfileService recruiterProfileService) {
