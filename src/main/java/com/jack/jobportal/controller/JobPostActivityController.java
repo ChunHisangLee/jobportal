@@ -61,12 +61,30 @@ public class JobPostActivityController {
         addSearchAttributesToModel(model, partTime, fullTime, freelance, remoteOnly, officeOnly, partialRemote, today, days7, days30, job, location);
         LocalDate searchDate = determineSearchDate(today, days7, days30);
         List<JobPostActivity> jobPosts = getJobPosts(job, location, partTime, fullTime, freelance, remoteOnly, officeOnly, partialRemote, searchDate);
-
         processUserAuthentication(model, jobPosts);
-
         return "dashboard";
     }
 
+    @GetMapping("/global-search/")
+    public String globalSearch(Model model,
+                               @RequestParam(value = "job", required = false) String job,
+                               @RequestParam(value = "location", required = false) String location,
+                               @RequestParam(value = "partTime", required = false) String partTime,
+                               @RequestParam(value = "fullTime", required = false) String fullTime,
+                               @RequestParam(value = "freelance", required = false) String freelance,
+                               @RequestParam(value = "remoteOnly", required = false) String remoteOnly,
+                               @RequestParam(value = "officeOnly", required = false) String officeOnly,
+                               @RequestParam(value = "partialRemote", required = false) String partialRemote,
+                               @RequestParam(value = "today", required = false) boolean today,
+                               @RequestParam(value = "days7", required = false) boolean days7,
+                               @RequestParam(value = "days30", required = false) boolean days30) {
+
+        addSearchAttributesToModel(model, partTime, fullTime, freelance, remoteOnly, officeOnly, partialRemote, today, days7, days30, job, location);
+        LocalDate searchDate = determineSearchDate(today, days7, days30);
+        List<JobPostActivity> jobPosts = getJobPosts(job, location, partTime, fullTime, freelance, remoteOnly, officeOnly, partialRemote, searchDate);
+        model.addAttribute("jobPost", jobPosts);
+        return "global-search";
+    }
 
     @GetMapping("/dashboard/add")
     public String addJob(Model model) {
@@ -112,7 +130,6 @@ public class JobPostActivityController {
 
         Object currentUserProfile = usersService.getCurrentUserProfile();
         model.addAttribute("user", currentUserProfile);
-
         String currentUsername = authentication.getName();
         model.addAttribute("username", currentUsername);
 
