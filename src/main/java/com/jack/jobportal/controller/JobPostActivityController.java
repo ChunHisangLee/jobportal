@@ -135,6 +135,7 @@ public class JobPostActivityController {
         jobPosts.forEach(jobActivity -> {
             boolean isActive = jobSeekerApplyList.stream()
                     .anyMatch(jobSeekerApply -> Objects.equals(jobActivity.getJobPostId(), jobSeekerApply.getJob().getJobPostId()));
+
             boolean isSaved = jobSeekerSaveList.stream()
                     .anyMatch(jobSeekerSave -> Objects.equals(jobActivity.getJobPostId(), jobSeekerSave.getJob().getJobPostId()));
 
