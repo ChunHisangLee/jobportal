@@ -14,9 +14,12 @@ public class JobCompany {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Integer id;
 
-    private String logo;
-
+    @Column(name = "name")
     private String name;
+
+    @Column(name = "logo")
+    private String logo;
 }
