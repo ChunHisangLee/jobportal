@@ -5,8 +5,14 @@ import com.jack.jobportal.entity.Skills;
 import com.jack.jobportal.entity.Users;
 import com.jack.jobportal.repository.UsersRepository;
 import com.jack.jobportal.services.JobSeekerProfileService;
+import com.jack.jobportal.util.FileDownloadUtil;
 import com.jack.jobportal.util.FileUploadUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,16 +20,14 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/job-seeker-profile")
@@ -81,6 +85,41 @@ public class JobSeekerProfileController {
         model.addAttribute("profile", jobSeekerProfile);
         model.addAttribute("skills", skillsList);
         return "redirect:/dashboard";
+    }
+
+    @GetMapping("/{id}")
+    public String candidateProfile(@PathVariable("id") int id, Model model) {
+        Optional<JobSeekerProfile> seekerProfile = jobSeekerProfileService.getOne(id);
+
+        if (seekerProfile.isPresent()) {
+            model.addAttribute("profile", seekerProfile.get());
+        } else {
+            return "redirect:/";
+        }
+
+        return "job-seeker-profile";
+    }
+
+    @GetMapping("/downloadResume")
+    public ResponseEntity<?> downloadResume(@RequestParam("fileName") String fileName, @RequestParam("userID") String userId) {
+        FileDownloadUtil downloadUtil = new FileDownloadUtil();
+        Resource resource;
+
+        try {
+            resource = downloadUtil.getFileAsResource("photos/candidate/" + userId, fileName);
+
+            if (resource == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("File not found");
+            }
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error retrieving file");
+        }
+
+        String headerValue = "attachment; filename=\"" + resource.getFilename() + "\"";
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .header(HttpHeaders.CONTENT_DISPOSITION, headerValue)
+                .body(resource);
     }
 
     private void handleFileUpload(JobSeekerProfile jobSeekerProfile, MultipartFile image, MultipartFile pdf) {
