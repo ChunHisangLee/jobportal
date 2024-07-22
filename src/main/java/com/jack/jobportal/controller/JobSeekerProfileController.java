@@ -84,7 +84,7 @@ public class JobSeekerProfileController {
         List<Skills> skillsList = new ArrayList<>(jobSeekerProfile.getSkills());
         model.addAttribute("profile", jobSeekerProfile);
         model.addAttribute("skills", skillsList);
-        return "redirect:/dashboard";
+        return "redirect:/dashboard/";
     }
 
     @GetMapping("/{id}")

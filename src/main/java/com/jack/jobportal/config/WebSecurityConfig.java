@@ -17,7 +17,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class WebSecurityConfig {
     private final CustomUserDetailsService customUserDetailsService;
     private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
-    private final String[] publicUrl = {
+    private final String[] PUBLIC_URLS = {
             "/",
             "/global-search/**",
             "/register",
@@ -47,20 +47,11 @@ public class WebSecurityConfig {
     protected SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers(publicUrl).permitAll();
+                    auth.requestMatchers(PUBLIC_URLS).permitAll();
                     auth.anyRequest().authenticated();
                 })
                 .formLogin(form -> form.loginPage("/login")
                         .permitAll()
-                        .successHandler(customAuthenticationSuccessHandler))
-                .logout(logout -> {
-                    logout.logoutUrl("/logout");
-                    logout.logoutSuccessUrl("/");
-                })
-                .cors(Customizer.withDefaults())
-                .csrf(AbstractHttpConfigurer::disable);
-
-        http.formLogin(form -> form.loginPage("/login").permitAll()
                         .successHandler(customAuthenticationSuccessHandler))
                 .logout(logout -> {
                     logout.logoutUrl("/logout");
