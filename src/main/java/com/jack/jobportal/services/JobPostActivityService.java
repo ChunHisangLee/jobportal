@@ -5,6 +5,7 @@ import com.jack.jobportal.repository.JobPostActivityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,8 +23,8 @@ public class JobPostActivityService {
     }
 
     public List<RecruiterJobsDto> getRecruiterJobs(int recruiter) {
-        List<IRecruiterJobs> recruiterJobsList = jobPostActivityRepository.getRecruiterJobs(recruiter);
-        return recruiterJobsList.stream()
+        return jobPostActivityRepository.getRecruiterJobs(recruiter)
+                .stream()
                 .map(this::convertToRecruiterJobsDto)
                 .collect(Collectors.toList());
     }
@@ -37,5 +38,17 @@ public class JobPostActivityService {
     public JobPostActivity getOne(int id) {
         return jobPostActivityRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Job not found"));
+    }
+
+    public List<JobPostActivity> getAll() {
+        return jobPostActivityRepository.findAll();
+    }
+
+    public List<JobPostActivity> search(String job, String location, List<String> type, List<String> remote, LocalDate searchDate) {
+        if (searchDate == null) {
+            return jobPostActivityRepository.searchWithoutDate(job, location, remote, type);
+        }
+
+        return jobPostActivityRepository.search(job, location, remote, type, searchDate);
     }
 }
