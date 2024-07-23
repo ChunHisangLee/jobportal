@@ -17,7 +17,6 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Controller
@@ -30,7 +29,9 @@ public class JobSeekerApplyController {
     private final JobSeekerProfileService jobSeekerProfileService;
 
     @Autowired
-    public JobSeekerApplyController(JobPostActivityService jobPostActivityService, UsersService usersService, JobSeekerApplyService jobSeekerApplyService, JobSeekerSaveService jobSeekerSaveService, RecruiterProfileService recruiterProfileService, JobSeekerProfileService jobSeekerProfileService) {
+    public JobSeekerApplyController(JobPostActivityService jobPostActivityService, UsersService usersService,
+                                    JobSeekerApplyService jobSeekerApplyService, JobSeekerSaveService jobSeekerSaveService,
+                                    RecruiterProfileService recruiterProfileService, JobSeekerProfileService jobSeekerProfileService) {
         this.jobPostActivityService = jobPostActivityService;
         this.usersService = usersService;
         this.jobSeekerApplyService = jobSeekerApplyService;
@@ -69,9 +70,9 @@ public class JobSeekerApplyController {
 
     private void applyForJobJfAuthenticated(int id, String username) {
         Optional<Users> user = usersService.findByEmail(username);
-        if (user.isPresent()) {
+        user.ifPresent(value -> {
             JobPostActivity jobPostActivity = jobPostActivityService.getOne(id);
-            Optional<JobSeekerProfile> seekerProfile = jobSeekerProfileService.getOne(user.get().getUserId());
+            Optional<JobSeekerProfile> seekerProfile = jobSeekerProfileService.getOne(value.getUserId());
 
             if (seekerProfile.isPresent() && jobPostActivity != null) {
                 JobSeekerApply jobSeekerApply = new JobSeekerApply();
@@ -82,7 +83,7 @@ public class JobSeekerApplyController {
             } else {
                 throw new RuntimeException("User not found or job post not found");
             }
-        }
+        });
     }
 
     private void addUserDetailsToModel(Authentication authentication, Model model, List<JobSeekerApply> jobSeekerApplyList, List<JobSeekerSave> jobSeekerSaveList) {
@@ -98,9 +99,15 @@ public class JobSeekerApplyController {
 
         if (jobSeekerProfile != null) {
             boolean alreadyApplied = jobSeekerApplyList.stream()
-                    .anyMatch(apply -> Objects.equals(apply.getUserId().getUserAccountId(), jobSeekerProfile.getUserAccountId()));
+                    .anyMatch(apply -> apply.getUserId()
+                            .getUserAccountId()
+                            .equals(jobSeekerProfile.getUserAccountId()));
+
             boolean alreadySaved = jobSeekerSaveList.stream()
-                    .anyMatch(save -> Objects.equals(save.getUserId().getUserAccountId(), jobSeekerProfile.getUserAccountId()));
+                    .anyMatch(save -> save.getUserId()
+                            .getUserAccountId()
+                            .equals(jobSeekerProfile.getUserAccountId()));
+
             model.addAttribute("alreadyApplied", alreadyApplied);
             model.addAttribute("alreadySaved", alreadySaved);
         }

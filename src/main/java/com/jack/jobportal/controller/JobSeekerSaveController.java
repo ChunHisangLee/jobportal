@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Controller
 public class JobSeekerSaveController {
@@ -41,24 +40,20 @@ public class JobSeekerSaveController {
     public String save(@PathVariable("id") int id, JobSeekerSave jobSeekerSave) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication instanceof AnonymousAuthenticationToken) {
-            return "redirect:/";
+        if (isAuthenticated(authentication)) {
+            Users user = getAuthenticatedUser(authentication);
+            JobSeekerProfile seekerProfile = getJobSeekerProfile(user);
+            JobPostActivity jobPostActivity = jobPostActivityService.getOne(id);
+
+            if (jobPostActivity != null) {
+                jobSeekerSave.setJob(jobPostActivity);
+                jobSeekerSave.setUserId(seekerProfile);
+                jobSeekerSaveService.addNew(jobSeekerSave);
+                return "redirect:/dashboard/";
+            }
         }
 
-        String currentUserName = authentication.getName();
-        Optional<Users> user = usersService.findByEmail(currentUserName);
-        Optional<JobSeekerProfile> seekerProfile = jobSeekerProfileService.getOne(user.get().getUserId());
-        JobPostActivity jobPostActivity = jobPostActivityService.getOne(id);
-
-        if (seekerProfile.isPresent() && jobPostActivity != null) {
-            jobSeekerSave.setJob(jobPostActivity);
-            jobSeekerSave.setUserId(seekerProfile.get());
-            jobSeekerSaveService.addNew(jobSeekerSave);
-        } else {
-            throw new RuntimeException("User not found");
-        }
-
-        return "redirect:/dashboard/";
+        throw new RuntimeException("User or job post not found");
     }
 
     @GetMapping("saved-jobs/")
@@ -81,5 +76,19 @@ public class JobSeekerSaveController {
         model.addAttribute("jobPost", jobPosts);
         model.addAttribute("user", jobSeekerProfile);
         return "saved-jobs";
+    }
+
+    private boolean isAuthenticated(Authentication authentication) {
+        return authentication != null && authentication.isAuthenticated() && !(authentication instanceof AnonymousAuthenticationToken);
+    }
+
+    private Users getAuthenticatedUser(Authentication authentication) {
+        return usersService.findByEmail(authentication.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    private JobSeekerProfile getJobSeekerProfile(Users user) {
+        return jobSeekerProfileService.getOne(user.getUserId())
+                .orElseThrow(() -> new RuntimeException("Job seeker profile not found"));
     }
 }
