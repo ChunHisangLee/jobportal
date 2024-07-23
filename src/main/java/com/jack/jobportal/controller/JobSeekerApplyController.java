@@ -2,6 +2,7 @@ package com.jack.jobportal.controller;
 
 import com.jack.jobportal.entity.*;
 import com.jack.jobportal.services.*;
+import com.jack.jobportal.util.AuthenticationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -47,7 +48,7 @@ public class JobSeekerApplyController {
         List<JobSeekerSave> jobSeekerSaveList = jobSeekerSaveService.getJobCandidates(jobDetails);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (isAuthenticated(authentication)) {
+        if (AuthenticationUtils.isAuthenticated(authentication)) {
             addUserDetailsToModel(authentication, model, jobSeekerApplyList, jobSeekerSaveList);
         }
 
@@ -61,7 +62,7 @@ public class JobSeekerApplyController {
     public String apply(@PathVariable("id") int id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (isAuthenticated(authentication)) {
+        if (AuthenticationUtils.isAuthenticated(authentication)) {
             applyForJobJfAuthenticated(id, authentication.getName());
         }
 
@@ -119,9 +120,5 @@ public class JobSeekerApplyController {
         if (recruiterProfile != null) {
             model.addAttribute("applyList", jobSeekerApplyList);
         }
-    }
-
-    private boolean isAuthenticated(Authentication authentication) {
-        return authentication != null && authentication.isAuthenticated() && !(authentication instanceof AnonymousAuthenticationToken);
     }
 }

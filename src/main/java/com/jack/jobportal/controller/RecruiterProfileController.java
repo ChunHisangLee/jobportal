@@ -4,6 +4,7 @@ import com.jack.jobportal.entity.RecruiterProfile;
 import com.jack.jobportal.entity.Users;
 import com.jack.jobportal.repository.UsersRepository;
 import com.jack.jobportal.services.RecruiterProfileService;
+import com.jack.jobportal.util.AuthenticationUtils;
 import com.jack.jobportal.util.FileUploadUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,12 +42,12 @@ public class RecruiterProfileController {
     public String recruiterProfile(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+        if (AuthenticationUtils.isAuthenticated(authentication)) {
             String currentUsername = authentication.getName();
-            Users users = usersRepository.findByEmail(currentUsername)
+            Users user = usersRepository.findByEmail(currentUsername)
                     .orElseThrow(() -> new UsernameNotFoundException("Could not find user with email: " + currentUsername));
 
-            recruiterProfileService.getOne(users.getUserId())
+            recruiterProfileService.getOne(user.getUserId())
                     .ifPresent(profile -> model.addAttribute("profile", profile));
         }
 
@@ -58,13 +59,15 @@ public class RecruiterProfileController {
         Optional<Users> currentUser = getCurrentAuthenticatedUser();
 
         if (currentUser.isPresent()) {
-            Users users = currentUser.get();
-            recruiterProfile.setUserId(users);
-            recruiterProfile.setUserAccountId(users.getUserId());
+            Users user = currentUser.get();
+            recruiterProfile.setUserId(user);
+            recruiterProfile.setUserAccountId(user.getUserId());
             model.addAttribute("profile", recruiterProfile);
+
             String fileName = handleUploadFile(multipartFile, recruiterProfile);
             RecruiterProfile savedProfile = recruiterProfileService.addNew(recruiterProfile);
             saveUploadedFile(fileName, multipartFile, savedProfile);
+
             return "redirect:/dashboard/";
         } else {
             throw new UsernameNotFoundException("Could not find the authenticated user.");
@@ -73,6 +76,7 @@ public class RecruiterProfileController {
 
     private void saveUploadedFile(String fileName, MultipartFile multipartFile, RecruiterProfile savedProfile) {
         String uploadDir = "photos/recruiter/" + savedProfile.getUserAccountId();
+
         try {
             FileUploadUtil.saveFile(uploadDir, fileName, multipartFile);
             logger.info("File saved successfully at {}", uploadDir);
@@ -82,24 +86,23 @@ public class RecruiterProfileController {
     }
 
     private String handleUploadFile(MultipartFile multipartFile, RecruiterProfile recruiterProfile) {
-        String fileName = "";
-
-        if (!Objects.requireNonNull(multipartFile.getOriginalFilename()).isEmpty()) {
-            fileName = StringUtils.cleanPath(Objects.requireNonNull(multipartFile.getOriginalFilename()));
+        if (!multipartFile.isEmpty()) {
+            String fileName = StringUtils.cleanPath(Objects.requireNonNull(multipartFile.getOriginalFilename()));
             recruiterProfile.setProfilePhoto(fileName);
+            return fileName;
         }
 
-        return fileName;
+        return "";
     }
 
     private Optional<Users> getCurrentAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication instanceof AnonymousAuthenticationToken) {
-            return Optional.empty();
+        if (AuthenticationUtils.isAuthenticated(authentication)) {
+            String username = authentication.getName();
+            return usersRepository.findByEmail(username);
         }
 
-        String username = authentication.getName();
-        return usersRepository.findByEmail(username);
+        return Optional.empty();
     }
 }

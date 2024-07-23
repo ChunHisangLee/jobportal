@@ -8,6 +8,7 @@ import com.jack.jobportal.services.JobPostActivityService;
 import com.jack.jobportal.services.JobSeekerProfileService;
 import com.jack.jobportal.services.JobSeekerSaveService;
 import com.jack.jobportal.services.UsersService;
+import com.jack.jobportal.util.AuthenticationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -40,7 +41,7 @@ public class JobSeekerSaveController {
     public String save(@PathVariable("id") int id, JobSeekerSave jobSeekerSave) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (isAuthenticated(authentication)) {
+        if (AuthenticationUtils.isAuthenticated(authentication)) {
             Users user = getAuthenticatedUser(authentication);
             JobSeekerProfile seekerProfile = getJobSeekerProfile(user);
             JobPostActivity jobPostActivity = jobPostActivityService.getOne(id);
@@ -76,10 +77,6 @@ public class JobSeekerSaveController {
         model.addAttribute("jobPost", jobPosts);
         model.addAttribute("user", jobSeekerProfile);
         return "saved-jobs";
-    }
-
-    private boolean isAuthenticated(Authentication authentication) {
-        return authentication != null && authentication.isAuthenticated() && !(authentication instanceof AnonymousAuthenticationToken);
     }
 
     private Users getAuthenticatedUser(Authentication authentication) {

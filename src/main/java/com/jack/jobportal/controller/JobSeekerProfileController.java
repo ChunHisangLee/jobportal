@@ -5,6 +5,7 @@ import com.jack.jobportal.entity.Skills;
 import com.jack.jobportal.entity.Users;
 import com.jack.jobportal.repository.UsersRepository;
 import com.jack.jobportal.services.JobSeekerProfileService;
+import com.jack.jobportal.util.AuthenticationUtils;
 import com.jack.jobportal.util.FileDownloadUtil;
 import com.jack.jobportal.util.FileUploadUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -44,19 +44,18 @@ public class JobSeekerProfileController {
     public String jobSeekerProfile(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication instanceof AnonymousAuthenticationToken) {
-            return "job-seeker-profile";
+        if (AuthenticationUtils.isAuthenticated(authentication)) {
+            Users user = getAuthenticatedUser(authentication);
+            JobSeekerProfile jobSeekerProfile = getJobSeekerProfile(user);
+
+            if (jobSeekerProfile.getSkills().isEmpty()) {
+                jobSeekerProfile.setSkills(List.of(new Skills()));
+            }
+
+            model.addAttribute("skills", jobSeekerProfile.getSkills());
+            model.addAttribute("profile", jobSeekerProfile);
         }
 
-        Users user = getAuthenticatedUser(authentication);
-        JobSeekerProfile jobSeekerProfile = getJobSeekerProfile(user);
-
-        if (jobSeekerProfile.getSkills().isEmpty()) {
-            jobSeekerProfile.setSkills(List.of(new Skills()));
-        }
-
-        model.addAttribute("skills", jobSeekerProfile.getSkills());
-        model.addAttribute("profile", jobSeekerProfile);
         return "job-seeker-profile";
     }
 
@@ -67,7 +66,7 @@ public class JobSeekerProfileController {
                          Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication instanceof AnonymousAuthenticationToken) {
+        if (!AuthenticationUtils.isAuthenticated(authentication)) {
             return "redirect:/";
         }
 

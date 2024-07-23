@@ -5,8 +5,8 @@ import com.jack.jobportal.services.JobPostActivityService;
 import com.jack.jobportal.services.JobSeekerApplyService;
 import com.jack.jobportal.services.JobSeekerSaveService;
 import com.jack.jobportal.services.UsersService;
+import com.jack.jobportal.util.AuthenticationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -62,11 +62,11 @@ public class JobPostActivityController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Object currentUserProfile = usersService.getCurrentUserProfile();
 
-        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+        if (AuthenticationUtils.isAuthenticated(authentication)) {
             String currentUsername = authentication.getName();
             model.addAttribute("username", currentUsername);
 
-            if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("Recruiter"))) {
+            if (isRecruiter(authentication)) {
                 List<RecruiterJobsDto> recruiterJobs = jobPostActivityService.getRecruiterJobs(((RecruiterProfile) currentUserProfile).getUserAccountId());
                 model.addAttribute("jobPost", recruiterJobs);
             } else {
@@ -127,6 +127,10 @@ public class JobPostActivityController {
         model.addAttribute("jobPostActivity", jobPostActivity);
         model.addAttribute("user", usersService.getCurrentUserProfile());
         return "add-jobs";
+    }
+
+    private boolean isRecruiter(Authentication authentication) {
+        return authentication.getAuthorities().contains(new SimpleGrantedAuthority("Recruiter"));
     }
 
     private void populateJobAttributes(Model model, String partTime, String fullTime, String freelance, String remoteOnly, String officeOnly, String partialRemote, boolean today, boolean days7, boolean days30, String job, String location) {

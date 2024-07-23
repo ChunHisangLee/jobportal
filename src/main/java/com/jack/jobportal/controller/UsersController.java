@@ -40,14 +40,9 @@ public class UsersController {
 
     @PostMapping("/register/new")
     public String userRegistration(@Valid Users users, Model model) {
-        Optional<Users> optionalUsers = usersService.findByEmail(users.getEmail());
-
-        if (optionalUsers.isPresent()) {
-            model.addAttribute("error", "Email already registered,try to login or register with other email.");
-            List<UsersType> usersTypes = usersTypeService.getAll();
-            model.addAttribute("getAllTypes", usersTypes);
-            model.addAttribute("user", new Users());
-            return "register";
+        if (isEmailRegistered(users.getEmail())) {
+            model.addAttribute("error", "Email already registered, try to login or register with another email.");
+            return prepareRegisterModel(model);
         }
 
         usersService.addNew(users);
@@ -68,5 +63,17 @@ public class UsersController {
         }
 
         return "redirect:/";
+    }
+
+    private boolean isEmailRegistered(String email) {
+        Optional<Users> optionalUsers = usersService.findByEmail(email);
+        return optionalUsers.isPresent();
+    }
+
+    private String prepareRegisterModel(Model model) {
+        List<UsersType> usersTypes = usersTypeService.getAll();
+        model.addAttribute("getAllTypes", usersTypes);
+        model.addAttribute("user", new Users());
+        return "register";
     }
 }
