@@ -17,14 +17,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class WebSecurityConfig {
     private final CustomUserDetailsService customUserDetailsService;
     private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
-
-    @Autowired
-    public WebSecurityConfig(CustomUserDetailsService customUserDetailsService, CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler) {
-        this.customUserDetailsService = customUserDetailsService;
-        this.customAuthenticationSuccessHandler = customAuthenticationSuccessHandler;
-    }
-
-    private final String[] publicUrl = {
+    private final String[] PUBLIC_URLS = {
             "/",
             "/global-search/**",
             "/register",
@@ -44,24 +37,21 @@ public class WebSecurityConfig {
             "/error"
     };
 
+    @Autowired
+    public WebSecurityConfig(CustomUserDetailsService customUserDetailsService, CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler) {
+        this.customUserDetailsService = customUserDetailsService;
+        this.customAuthenticationSuccessHandler = customAuthenticationSuccessHandler;
+    }
+
     @Bean
     protected SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers(publicUrl).permitAll();
+                    auth.requestMatchers(PUBLIC_URLS).permitAll();
                     auth.anyRequest().authenticated();
                 })
                 .formLogin(form -> form.loginPage("/login")
                         .permitAll()
-                        .successHandler(customAuthenticationSuccessHandler))
-                .logout(logout -> {
-                    logout.logoutUrl("/logout");
-                    logout.logoutSuccessUrl("/");
-                })
-                .cors(Customizer.withDefaults())
-                .csrf(AbstractHttpConfigurer::disable);
-
-        http.formLogin(form -> form.loginPage("/login").permitAll()
                         .successHandler(customAuthenticationSuccessHandler))
                 .logout(logout -> {
                     logout.logoutUrl("/logout");

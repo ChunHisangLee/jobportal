@@ -50,21 +50,6 @@
                                 th:object="${user}"
                         >
                             <div class="box-body bozero mx2p">
-                                <!-- Error message display -->
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group">
-                                            <div
-                                                    class="alert alert-danger"
-                                                    role="alert"
-                                                    th:if="${error}"
-                                            >
-                                                <p th:text="${error}"></p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- End error message display -->
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="form-group">
@@ -128,12 +113,7 @@
 </section>
 </body>
 
-<script
-        th:src="@{/webjars/jquery/jquery.min.js}"
-        type="text/javascript"
-></script>
-<script
-        th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"
-        type="text/javascript"
-></script>
+<script th:src="@{/webjars/jquery/jquery.min.js}" type="text/javascript"></script>
+<script th:src="@{/webjars/bootstrap/js/bootstrap.min.js}" type="text/javascript"></script>
+
 </html>

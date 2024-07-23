@@ -36,9 +36,9 @@ public interface JobPostActivityRepository extends JpaRepository<JobPostActivity
             "SELECT * " +
                     "FROM job_post_activity j " +
                     "INNER JOIN job_location l ON j.job_location_id = l.id " +
-                    "WHERE j.job_title LIKE %:job% " +
-                    "  AND (l.city LIKE %:location% " +
-                    "       OR l.country LIKE %:location% " +
+                    "WHERE j.job_title LIKE %:job%" +
+                    "  AND (l.city LIKE %:location%" +
+                    "       OR l.country LIKE %:location%" +
                     "       OR l.state LIKE %:location%) " +
                     "  AND j.job_type IN(:type) " +
                     "  AND j.remote IN(:remote)",
@@ -54,9 +54,9 @@ public interface JobPostActivityRepository extends JpaRepository<JobPostActivity
             "SELECT * " +
                     "FROM job_post_activity j " +
                     "INNER JOIN job_location l ON j.job_location_id = l.id " +
-                    "WHERE j.job_title LIKE %:job% " +
-                    "  AND (l.city LIKE %:location% " +
-                    "       OR l.country LIKE %:location% " +
+                    "WHERE j.job_title LIKE %:job%" +
+                    "  AND (l.city LIKE %:location%" +
+                    "       OR l.country LIKE %:location%" +
                     "       OR l.state LIKE %:location%) " +
                     "  AND j.job_type IN(:type) " +
                     "  AND j.remote IN(:remote) " +

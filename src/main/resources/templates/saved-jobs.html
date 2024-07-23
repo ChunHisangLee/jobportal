@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Dashboard</title>
+    <meta charset="utf-8"/>
+    <meta content="ie=edge" http-equiv="x-ua-compatible"/>
+    <meta content="" name="description"/>
+    <meta content="width=device-width, initial-scale=1" name="viewport"/>
+
+    <link media="all" rel="stylesheet" th:href="@{/css/styles.css}" type="text/css"/>
+    <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css} " th:rel="stylesheet"/>
+    <link th:href="@{/webjars/font-awesome/css/all.css}" th:rel="stylesheet"/>
+
+</head>
+
+<body>
+<header class="navbar navbar-expand-lg navbar-dark">
+    <label class="mt-2 ms-5 font-weight-bold h5"
+    ><a th:href="@{/dashboard/}">hotdevjobs</a
+    ><span class="logo_com font-weight-bold h5" style="color: white">
+          .com</span
+    ></label
+    >
+    <button
+            aria-controls="navbarTogglerDemo02"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+            class="navbar-toggler"
+            data-target="#navbarTogglerDemo02"
+            data-toggle="collapse"
+            type="button"
+    >
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarToggler">
+        <ul class="navbar-nav m-auto mt-2 mt-lg-0">
+
+            <li class="nav-item ">
+                <a class="nav-link" sec:authorize="hasAuthority('Job Seeker')" th:href="@{/dashboard/}"
+                ><i class="fas fa-search"></i>Search for Jobs</a
+                >
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" sec:authorize="hasAuthority('Job Seeker')" th:href="@{/saved-jobs/}">
+                    <i class="fa-solid fa-eye"></i>View Saved Jobs</a>
+            </li>
+            <li class="nav-item ">
+                <a class="nav-link" sec:authorize="hasAuthority('Job Seeker')" th:href="@{/job-seeker-profile/}">
+                    <i class="fa-solid fa-pencil"></i>Edit Profile</a>
+            </li>
+        </ul>
+        <img
+                class="rounded-circle me-3"
+                height="50px"
+                th:if="${user.photosImagePath!=null}"
+                th:src="@{${user?.photosImagePath}}"
+                width="50x"
+        />
+        <label class="nav-item nav-link px-2 me-3"
+               th:if="${user.firstName != null && user.lastName != null}"
+               th:text="${user.firstName+' '+user.lastName}">
+        </label>
+
+        <button class="myBtn-light me-5" onclick="window.location.href='/logout'">Logout</button>
+    </div>
+</header>
+<section class="section">
+    <div class="sidenav px-5">
+        <div sec:authorize="hasAuthority('Job Seeker')">
+            <hr/>
+
+        </div>
+    </div>
+
+    <article>
+
+        <div class="box">
+            <h1 class="primary-title">Saved Jobs</h1>
+        </div>
+
+        <div class="box mt-3">
+            <label class="large-label px-3 mb-3">Results</label>
+            <th:block th:each="jobPost:${jobPost}">
+                <a style=" text-decoration:none; color:black;"
+                   th:href="@{/job-details-apply/{id}(id=${jobPost.jobPostId})}">
+                    <div class="job-row" onclick="window.location=/job-details-apply/{id}(id=${jobPost.jobPostId})">
+                        <div class="row ">
+                            <div class="col-md-4">
+                                <label class="job-title text-left">
+                                    [[${jobPost.jobTitle}]]
+                                    <span class="title-span" sec:authorize="hasAuthority('Recruiter')"
+                                          th:text="'('+ @{${jobPost.totalCandidates}}+' Candidates Applied)'">(xx candidates applied)</span>
+                                    <span class="title-span" sec:authorize="hasAuthority('Job Seeker')"
+                                          th:if="${jobPost.isActive == true}">(Applied)</span>
+
+                                </label>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <label th:text="${jobPost.jobLocationId.city+', '+ jobPost.jobLocationId.state}">
+                                    City State</label>
+                            </div>
+                            <div class="col-md-4 text-right">
+                                <label th:text="@{${jobPost.jobCompanyId.name}}">Recruiter Company Name</label>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </th:block>
+        </div>
+
+    </article>
+
+
+</section>
+
+<!--/ bradcam_area  -->
+
+
+<script
+        th:src="@{/webjars/jquery/jquery.min.js}"
+        type="text/javascript"
+></script>
+<script
+        th:src="@{/webjars/popper.js/umd/popper.min.js}"
+        type="text/javascript"
+></script>
+<script
+        th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"
+        type="text/javascript"
+></script>
+<script th:src="@{/js/main.js}" type="text/javascript"></script>
+
+<script>
+
+    $('#job').change(function () {
+        $('#hidJob').val($(this).val());
+    });
+    $('#loc').change(function () {
+        $('#hidLoc').val($(this).val());
+    });
+</script>
+</body>
+</html>
